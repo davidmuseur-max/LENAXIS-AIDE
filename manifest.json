@@ -1,0 +1,42 @@
+{
+  "name": "Lenaxis Assistant",
+  "short_name": "Lenaxis",
+  "description": "Assistant ingénierie & technique professionnel",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#080b10",
+  "theme_color": "#080b10",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["productivity", "utilities", "business"],
+  "lang": "fr",
+  "shortcuts": [
+    {
+      "name": "Nouvelle analyse",
+      "short_name": "Analyser",
+      "description": "Analyser un document technique",
+      "url": "/?mode=analyse",
+      "icons": [{ "src": "icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Préparer réunion",
+      "short_name": "Réunion",
+      "description": "Préparer une réunion technique",
+      "url": "/?mode=reunion",
+      "icons": [{ "src": "icon-192.png", "sizes": "192x192" }]
+    }
+  ]
+}

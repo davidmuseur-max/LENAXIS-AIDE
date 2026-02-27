@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#080b10">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Lenaxis">
+<meta name="description" content="Assistant ingénierie & technique professionnel Lenaxis">
+<link rel="manifest" href="/manifest.json">
+<link rel="apple-touch-icon" href="/icon-192.png">
+<title>Lenaxis Assistant</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:       #080b10;
+  --s1:       #0d1117;
+  --s2:       #131922;
+  --s3:       #1a2233;
+  --border:   #1e293b;
+  --b2:       #263147;
+  --cyan:     #00c8ff;
+  --cyan-d:   #0e3d4f;
+  --green:    #00e5a0;
+  --green-d:  #0a3328;
+  --orange:   #ff9d3d;
+  --ora-d:    #3d2608;
+  --red:      #ff4d6d;
+  --red-d:    #3d0a15;
+  --txt:      #cdd9ed;
+  --muted:    #546e8a;
+  --dim:      #2a3a52;
+  --mono:     'JetBrains Mono', monospace;
+  --sans:     'Space Grotesk', sans-serif;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bot: env(safe-area-inset-bottom, 0px);
+}
+
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+html, body { height: 100%; overflow: hidden; }
+
+body {
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--txt);
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+}
+
+/* ── Top bar ── */
+.topbar {
+  background: var(--s1);
+  border-bottom: 1px solid var(--border);
+  padding: calc(var(--safe-top) + 10px) 16px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+  z-index: 100;
+}
+
+.topbar-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.hex-icon {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+}
+
+.app-name {
+  font-family: var(--mono);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.app-name span { color: var(--cyan); }
+
+.status-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--muted);
+  background: var(--s2);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 4px 10px;
+}
+
+.led {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 0 5px var(--green);
+  animation: blink 2s infinite;
+}
+
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:.4} }
+
+/* ── Mode tabs (horizontal scroll) ── */
+.mode-bar {
+  background: var(--s1);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x mandatory;
+  flex-shrink: 0;
+}
+
+.mode-bar::-webkit-scrollbar { display: none; }
+
+.mode-tab {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 16px;
+  white-space: nowrap;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--muted);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all .15s;
+  scroll-snap-align: start;
+  border-top: none;
+  border-left: none;
+  border-right: none;
+  background: transparent;
+  font-family: var(--sans);
+  flex-shrink: 0;
+}
+
+.mode-tab.active { color: var(--cyan); border-bottom-color: var(--cyan); }
+.mode-tab:active { background: var(--s2); }
+
+/* ── Messages ── */
+.messages {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  overscroll-behavior: contain;
+}
+
+.messages::-webkit-scrollbar { display: none; }
+
+/* Welcome */
+.welcome {
+  text-align: center;
+  padding: 24px 8px;
+  max-width: 100%;
+}
+
+.w-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--cyan);
+  background: var(--cyan-d);
+  border: 1px solid rgba(0,200,255,.15);
+  border-radius: 20px;
+  padding: 4px 12px;
+  margin-bottom: 16px;
+}
+
+.welcome h1 {
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -.5px;
+  margin-bottom: 10px;
+}
+
+.welcome h1 em { font-style:normal; color: var(--cyan); }
+
+.welcome p {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.6;
+  margin-bottom: 24px;
+  font-weight: 300;
+}
+
+.quick-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  text-align: left;
+}
+
+.qcard {
+  background: var(--s1);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px;
+  cursor: pointer;
+  transition: all .15s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.qcard:active { background: var(--s2); border-color: var(--cyan); transform: scale(.98); }
+
+.qcard-icon { font-size: 18px; margin-bottom: 6px; display: block; }
+.qcard-title { font-size: 12px; font-weight: 600; color: var(--txt); margin-bottom: 3px; }
+.qcard-desc { font-size: 10.5px; color: var(--muted); line-height: 1.3; }
+
+/* ── Message bubbles ── */
+.msg {
+  display: flex;
+  gap: 10px;
+  animation: msgIn .2s ease;
+  max-width: 100%;
+}
+
+@keyframes msgIn { from{opacity:0;transform:translateY(5px)} to{opacity:1;transform:none} }
+
+.msg.user { flex-direction: row-reverse; }
+
+.av {
+  width: 28px; height: 28px;
+  border-radius: 7px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-family: var(--mono);
+  font-weight: 600;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.msg.ai .av   { background: var(--cyan-d);  color: var(--cyan);  border: 1px solid rgba(0,200,255,.2); }
+.msg.user .av { background: var(--s2);      color: var(--muted); border: 1px solid var(--b2); }
+
+.bubble {
+  background: var(--s1);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px 14px;
+  font-size: 13.5px;
+  line-height: 1.65;
+  color: var(--txt);
+  max-width: calc(100% - 42px);
+  word-break: break-word;
+}
+
+.msg.user .bubble { background: var(--s2); border-color: var(--b2); }
+
+.bubble h3 {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--cyan);
+  margin: 14px 0 7px;
+  padding-bottom: 5px;
+  border-bottom: 1px solid var(--cyan-d);
+}
+
+.bubble h3:first-child { margin-top: 0; }
+
+.bubble ul { list-style: none; padding: 0; margin: 5px 0; }
+.bubble li { padding: 2px 0 2px 14px; position: relative; font-size: 13px; }
+.bubble li::before { content:'▸'; position:absolute; left:0; color:var(--cyan); font-size:9px; top:5px; }
+
+.bubble strong { color: var(--green); font-weight: 600; }
+.bubble code { font-family:var(--mono); font-size:11px; background:var(--s2); border:1px solid var(--b2); border-radius:3px; padding:1px 5px; color:var(--orange); }
+
+.bubble table { width:100%; border-collapse:collapse; margin:10px 0; font-size:12px; }
+.bubble th { background:var(--s2); border:1px solid var(--b2); padding:6px 8px; font-family:var(--mono); font-size:9px; letter-spacing:1px; text-transform:uppercase; color:var(--muted); text-align:left; }
+.bubble td { border:1px solid var(--border); padding:6px 8px; vertical-align:top; }
+
+.tag { display:inline-flex; align-items:center; gap:3px; font-family:var(--mono); font-size:9px; font-weight:500; border-radius:3px; padding:2px 6px; margin:2px 2px 2px 0; }
+.tag.fact   { background:var(--green-d); color:var(--green); border:1px solid rgba(0,229,160,.15); }
+.tag.interp { background:var(--cyan-d);  color:var(--cyan);  border:1px solid rgba(0,200,255,.15); }
+.tag.hypo   { background:var(--ora-d);   color:var(--orange);border:1px solid rgba(255,157,61,.15); }
+.tag.warn   { background:var(--red-d);   color:var(--red);   border:1px solid rgba(255,77,109,.15); }
+
+/* bubble toolbar */
+.btoolbar {
+  display: flex;
+  gap: 6px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+
+.btbtn {
+  font-family: var(--sans);
+  font-size: 11px;
+  color: var(--muted);
+  background: var(--s2);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 4px 9px;
+  cursor: pointer;
+  transition: all .12s;
+}
+
+.btbtn:active { border-color: var(--cyan); color: var(--cyan); transform: scale(.97); }
+
+/* Typing indicator */
+.typing { display:flex; align-items:center; gap:4px; padding:4px 0; height:22px; }
+.typing span { width:5px; height:5px; border-radius:50%; background:var(--cyan); animation:tb 1.1s infinite; }
+.typing span:nth-child(2){animation-delay:.18s} .typing span:nth-child(3){animation-delay:.36s}
+@keyframes tb { 0%,80%,100%{transform:scaleY(.5);opacity:.3} 40%{transform:scaleY(1);opacity:1} }
+
+/* ── Bottom action drawer ── */
+.drawer {
+  background: var(--s1);
+  border-top: 1px solid var(--border);
+  flex-shrink: 0;
+  transition: max-height .3s ease;
+}
+
+.drawer-actions {
+  display: flex;
+  overflow-x: auto;
+  padding: 8px 12px 6px;
+  gap: 7px;
+  -webkit-overflow-scrolling: touch;
+}
+
+.drawer-actions::-webkit-scrollbar { display: none; }
+
+.action-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--muted);
+  background: var(--s2);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 5px 11px;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: all .12s;
+}
+
+.action-chip:active { border-color: var(--cyan); color: var(--cyan); transform: scale(.96); }
+
+/* ── Input ── */
+.input-area {
+  background: var(--s1);
+  border-top: 1px solid var(--border);
+  padding: 10px 12px calc(var(--safe-bot) + 10px);
+  flex-shrink: 0;
+}
+
+.input-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.file-indicator {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--green);
+  background: var(--green-d);
+  border: 1px solid rgba(0,229,160,.15);
+  border-radius: 6px;
+  padding: 3px 8px;
+  margin-bottom: 6px;
+  max-width: 100%;
+}
+
+.fi-name { flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.fi-rm { background:none; border:none; color:var(--muted); cursor:pointer; font-size:12px; flex-shrink:0; }
+
+.input-wrap {
+  flex: 1;
+  background: var(--bg);
+  border: 1.5px solid var(--b2);
+  border-radius: 12px;
+  overflow: hidden;
+  transition: border-color .15s;
+}
+
+.input-wrap:focus-within { border-color: var(--cyan); }
+
+textarea {
+  width: 100%;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--txt);
+  font-family: var(--sans);
+  font-size: 15px;
+  line-height: 1.5;
+  resize: none;
+  padding: 10px 12px;
+  min-height: 44px;
+  max-height: 120px;
+  -webkit-appearance: none;
+}
+
+textarea::placeholder { color: var(--dim); }
+
+.input-btn {
+  width: 42px; height: 42px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  flex-shrink: 0;
+  transition: all .12s;
+  -webkit-appearance: none;
+}
+
+.send-btn { background: var(--cyan); color: var(--bg); font-weight: 700; }
+.send-btn:active { transform: scale(.93); opacity: .85; }
+.send-btn:disabled { background: var(--border); color: var(--dim); }
+
+.file-btn { background: var(--s2); border: 1px solid var(--b2); color: var(--muted); }
+.file-btn:active { border-color: var(--cyan); color: var(--cyan); }
+
+#file-input { display: none; }
+
+/* ── Install banner ── */
+.install-banner {
+  display: none;
+  align-items: center;
+  gap: 10px;
+  background: var(--cyan-d);
+  border: 1px solid rgba(0,200,255,.2);
+  border-radius: 10px;
+  padding: 10px 14px;
+  margin: 10px 12px 0;
+  font-size: 12.5px;
+}
+
+.install-banner.show { display: flex; }
+
+.ib-text { flex:1; color:var(--txt); line-height:1.4; }
+.ib-text strong { color:var(--cyan); display:block; margin-bottom:2px; }
+
+.ib-btn {
+  background: var(--cyan);
+  color: var(--bg);
+  border: none;
+  border-radius: 7px;
+  padding: 7px 14px;
+  font-weight: 600;
+  font-size: 12px;
+  cursor: pointer;
+  flex-shrink: 0;
+  font-family: var(--sans);
+}
+
+.ib-close {
+  background: none; border: none;
+  color: var(--muted); cursor: pointer; font-size: 16px;
+  padding: 0; flex-shrink: 0;
+}
+
+/* Scrollbar hidden globally on mobile */
+* { scrollbar-width: none; }
+</style>
+</head>
+<body>
+
+<!-- Top bar -->
+<div class="topbar">
+  <div class="topbar-logo">
+    <svg class="hex-icon" viewBox="0 0 32 36" fill="none">
+      <path d="M16 1L30 9V27L16 35L2 27V9L16 1Z" fill="rgba(0,200,255,0.08)" stroke="#00c8ff" stroke-width="1"/>
+      <path d="M10 14L16 11L22 14V22L16 25L10 22V14Z" fill="#00c8ff" opacity=".9"/>
+    </svg>
+    <div class="app-name">LENAXIS<span>_ENG</span></div>
+  </div>
+  <div class="status-pill">
+    <div class="led"></div>
+    EN LIGNE
+  </div>
+</div>
+
+<!-- Install prompt (iOS) -->
+<div class="install-banner" id="install-banner">
+  <div class="ib-text">
+    <strong>📲 Installer l'app</strong>
+    Tap <b>Partager</b> → "Ajouter à l'écran d'accueil"
+  </div>
+  <button class="ib-close" onclick="document.getElementById('install-banner').classList.remove('show')">✕</button>
+</div>
+
+<!-- Mode tabs -->
+<div class="mode-bar">
+  <button class="mode-tab active" onclick="setMode('analyse',this)">🔍 Analyse</button>
+  <button class="mode-tab" onclick="setMode('synthese',this)">📋 Synthèse</button>
+  <button class="mode-tab" onclick="setMode('reunion',this)">🎯 Réunion</button>
+  <button class="mode-tab" onclick="setMode('rapport',this)">📄 Rapport</button>
+  <button class="mode-tab" onclick="setMode('specs',this)">📐 Specs</button>
+  <button class="mode-tab" onclick="setMode('risques',this)">⚠️ Risques</button>
+</div>
+
+<!-- Messages -->
+<div class="messages" id="messages">
+  <div class="welcome" id="welcome">
+    <div class="w-badge">✦ Ingénierie & Technique</div>
+    <h1>Assistant<br><em>Lenaxis</em></h1>
+    <p>Analyse de documents, synthèses, réunions, rapports — avec la rigueur d'un ingénieur senior.</p>
+    <div class="quick-grid">
+      <div class="qcard" onclick="quick('Analyse ce document technique et donne-moi une synthèse exécutive avec enjeux, faits clés et recommandations.')">
+        <span class="qcard-icon">🔍</span>
+        <div class="qcard-title">Analyser un doc</div>
+        <div class="qcard-desc">Synthèse exécutive, enjeux, recommandations</div>
+      </div>
+      <div class="qcard" onclick="quick('Identifie et structure tous les risques techniques de ce document avec probabilité et impact.')">
+        <span class="qcard-icon">⚠️</span>
+        <div class="qcard-title">Risques techniques</div>
+        <div class="qcard-desc">Analyse, criticité, mitigations</div>
+      </div>
+      <div class="qcard" onclick="quick('Prépare ma réunion technique sur ce sujet : points clés, questions à poser, décisions attendues.')">
+        <span class="qcard-icon">🎯</span>
+        <div class="qcard-title">Préparer réunion</div>
+        <div class="qcard-desc">Points clés, questions, agenda</div>
+      </div>
+      <div class="qcard" onclick="quick('Génère un rapport technique structuré avec executive summary, analyse et recommandations.')">
+        <span class="qcard-icon">📄</span>
+        <div class="qcard-title">Générer rapport</div>
+        <div class="qcard-desc">Rapport complet, exec summary</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Action chips -->
+<div class="drawer">
+  <div class="drawer-actions" id="chips">
+    <div class="action-chip" onclick="quick('Synthèse exécutive :')">⚡ Synthèse</div>
+    <div class="action-chip" onclick="quick('Risques et points de vigilance ?')">⚠️ Risques</div>
+    <div class="action-chip" onclick="quick('Extrais les paramètres et specs.')">📐 Specs</div>
+    <div class="action-chip" onclick="quick('Prépare les points pour ma réunion sur :')">🎯 Réunion</div>
+    <div class="action-chip" onclick="quick('Rapport structuré à partir de :')">📄 Rapport</div>
+    <div class="action-chip" onclick="quick('Lacunes et informations manquantes ?')">🔎 Lacunes</div>
+    <div class="action-chip" onclick="quick('Fiche de lecture structurée.')">📝 Fiche</div>
+    <div class="action-chip" onclick="quick('Plan d\'action avec priorités et deadlines.')">✅ Plan d\'action</div>
+  </div>
+</div>
+
+<!-- Input -->
+<div class="input-area">
+  <div id="file-indicator" style="display:none" class="file-indicator">
+    <span>📎</span>
+    <span class="fi-name" id="fi-name">fichier.txt</span>
+    <button class="fi-rm" onclick="clearFile()">✕</button>
+  </div>
+  <div class="input-row">
+    <button class="input-btn file-btn" onclick="document.getElementById('file-input').click()" title="Joindre un fichier">📂</button>
+    <input type="file" id="file-input" accept=".pdf,.txt,.doc,.docx,.md,.csv" onchange="handleFile(event)">
+    <div class="input-wrap">
+      <textarea id="inp" placeholder="Message ou texte à analyser…" rows="1"
+        onkeydown="if(event.key==='Enter'&&!event.shiftKey&&!isMobile()){event.preventDefault();send()}"
+        oninput="autoH(this)"></textarea>
+    </div>
+    <button class="input-btn send-btn" id="send-btn" onclick="send()">▶</button>
+  </div>
+</div>
+
+<script>
+// ─────────────────────────────────────────────
+// STATE
+// ─────────────────────────────────────────────
+let mode = 'analyse';
+let history = [];
+let busy = false;
+let fileContent = '';
+let fileName = '';
+
+// ─────────────────────────────────────────────
+// SYSTEM PROMPT
+// ─────────────────────────────────────────────
+const BASE = `Tu es un assistant d'ingénierie professionnel (Lenaxis) spécialisé dans l'analyse de documents techniques.
+
+PRINCIPES ABSOLUS :
+- Ne jamais inventer de faits. Si le document ne dit pas → tu le dis.
+- Distinguer : FAIT / INTERPRÉTATION / HYPOTHÈSE
+- Signaler les lacunes explicitement.
+- Phrases courtes. Aucun jargon inutile.
+- Réponses en français uniquement.
+- Finir par 2-3 suggestions d'approfondissement courtes.
+
+FORMAT : titres ## courts, listes ▸, tableaux si utile, priorités/seuils/deadlines en gras.`;
+
+const MODES = {
+  analyse:  'MODE ANALYSE : Extrais l\'essentiel, structure du général au particulier, distingue fait/interprétation/hypothèse. Signale les lacunes.',
+  synthese: 'MODE SYNTHÈSE : 5-10 points max, du plus important au moins. Chaque point directement actionnable.',
+  reunion:  'MODE RÉUNION : Structure en → Points incontournables → Questions clés → Données nécessaires → Risques de blocage → Décisions attendues.',
+  rapport:  'MODE RAPPORT : Executive summary (3-5 lignes) → Contexte → Analyse technique → Observations → Recommandations P1/P2/P3 → Conclusions.',
+  specs:    'MODE SPECS : Identifie → Exigences fonctionnelles → Exigences techniques → Contraintes (perfs, interfaces, normes) → Hypothèses → Ambiguïtés.',
+  risques:  'MODE RISQUES : Pour chaque risque : description, catégorie, probabilité (faible/moyen/élevé), impact, mitigation. Conclure par matrice de criticité.'
+};
+
+// ─────────────────────────────────────────────
+// UTILS
+// ─────────────────────────────────────────────
+function isMobile() { return window.innerWidth < 768; }
+
+function autoH(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+}
+
+function quick(text) {
+  const inp = document.getElementById('inp');
+  inp.value = text;
+  autoH(inp);
+  inp.focus();
+}
+
+function setMode(m, el) {
+  mode = m;
+  document.querySelectorAll('.mode-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+}
+
+function scroll() {
+  const m = document.getElementById('messages');
+  m.scrollTop = m.scrollHeight;
+}
+
+function removeWelcome() {
+  const w = document.getElementById('welcome');
+  if (w) w.remove();
+}
+
+// ─────────────────────────────────────────────
+// FILE HANDLING
+// ─────────────────────────────────────────────
+function handleFile(e) {
+  const f = e.target.files[0];
+  if (!f) return;
+  fileName = f.name;
+
+  const reader = new FileReader();
+  reader.onload = ev => {
+    fileContent = ev.target.result;
+    showFileIndicator();
+  };
+
+  if (f.name.match(/\.(pdf)$/i)) {
+    fileContent = `[Document PDF : ${f.name} — ${Math.round(f.size/1024)} KB]`;
+    showFileIndicator();
+  } else {
+    reader.readAsText(f);
+  }
+}
+
+function showFileIndicator() {
+  document.getElementById('fi-name').textContent = fileName;
+  document.getElementById('file-indicator').style.display = 'flex';
+}
+
+function clearFile() {
+  fileContent = '';
+  fileName = '';
+  document.getElementById('file-indicator').style.display = 'none';
+  document.getElementById('file-input').value = '';
+}
+
+// ─────────────────────────────────────────────
+// RENDERING
+// ─────────────────────────────────────────────
+function esc(t) {
+  return (t||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
+}
+
+function renderMD(raw) {
+  let t = (raw||'')
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/\*\*([^*\n]+)\*\*/g,'<strong>$1</strong>')
+    .replace(/`([^`\n]+)`/g,'<code>$1</code>')
+    .replace(/^#{1,3} (.+)$/gm,'<h3>$1</h3>')
+    .replace(/\[FAIT\]/g,'<span class="tag fact">● FAIT</span>')
+    .replace(/\[INTERPRÉTATION\]/g,'<span class="tag interp">◈ INTERPRÉT.</span>')
+    .replace(/\[HYPOTHÈSE\]/g,'<span class="tag hypo">◇ HYPOTHÈSE</span>')
+    .replace(/\[ATTENTION\]/g,'<span class="tag warn">▲ ATTENTION</span>')
+    .replace(/\[MANQUANT\]/g,'<span class="tag interp">○ MANQUANT</span>')
+    .replace(/^[▸\-•*] (.+)$/gm,'<li>$1</li>')
+    .replace(/^\d+\. (.+)$/gm,'<li>$1</li>');
+
+  t = t.replace(/(<li>.*?<\/li>\n?)+/g, m => `<ul>${m}</ul>`);
+
+  return t.split('\n').map(l => {
+    const tr = l.trim();
+    if (!tr) return '<div style="height:5px"></div>';
+    if (/^<(h3|ul|table|div)/.test(tr)) return tr;
+    return `<p style="margin-bottom:3px">${tr}</p>`;
+  }).join('');
+}
+
+function addMsg(role, content, isHTML = false) {
+  removeWelcome();
+  const msgs = document.getElementById('messages');
+  const d = document.createElement('div');
+  d.className = `msg ${role}`;
+
+  const label = role === 'user' ? 'YOU' : 'AI';
+  const bubbleContent = isHTML ? content : esc(content);
+
+  d.innerHTML = `
+    <div class="av">${label}</div>
+    <div class="bubble">${bubbleContent}${role === 'ai' ? `
+      <div class="btoolbar">
+        <button class="btbtn" onclick="copyBubble(this)">📋 Copier</button>
+        <button class="btbtn" onclick="quick('Approfondir ce point : ')">🔍 +</button>
+        <button class="btbtn" onclick="quick('Condense en 5 points.')">✂️ Condenser</button>
+      </div>` : ''}</div>`;
+
+  msgs.appendChild(d);
+  scroll();
+  return d;
+}
+
+function addTyping() {
+  removeWelcome();
+  const msgs = document.getElementById('messages');
+  const d = document.createElement('div');
+  d.className = 'msg ai';
+  d.id = 'typing';
+  d.innerHTML = `<div class="av">AI</div><div class="bubble"><div class="typing"><span></span><span></span><span></span></div></div>`;
+  msgs.appendChild(d);
+  scroll();
+}
+
+function removeTyping() {
+  const d = document.getElementById('typing');
+  if (d) d.remove();
+}
+
+function copyBubble(btn) {
+  const bubble = btn.closest('.bubble');
+  const text = bubble.innerText.replace(/📋 Copier|🔍 \+|✂️ Condenser/g,'').trim();
+  navigator.clipboard.writeText(text).catch(() => {});
+  btn.textContent = '✅';
+  setTimeout(() => btn.textContent = '📋 Copier', 2000);
+}
+
+// ─────────────────────────────────────────────
+// SEND
+// ─────────────────────────────────────────────
+async function send() {
+  if (busy) return;
+  const inp = document.getElementById('inp');
+  const text = inp.value.trim();
+  if (!text) return;
+
+  let userContent = text;
+  if (fileContent) {
+    userContent = `${text}\n\n---\n📎 ${fileName}\n\n${fileContent.slice(0, 10000)}`;
+  }
+
+  addMsg('user', text);
+  inp.value = '';
+  inp.style.height = 'auto';
+  inp.blur(); // hide keyboard on send (mobile)
+
+  history.push({ role: 'user', content: userContent });
+
+  busy = true;
+  document.getElementById('send-btn').disabled = true;
+  addTyping();
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        system: `${BASE}\n\n---\n${MODES[mode]}`,
+        messages: history
+      })
+    });
+
+    const data = await res.json();
+    if (data.error) throw new Error(data.error.message);
+
+    const reply = (data.content || []).map(b => b.text || '').join('');
+    history.push({ role: 'assistant', content: reply });
+
+    removeTyping();
+    const d = document.createElement('div');
+    d.className = 'msg ai';
+    d.style.animation = 'msgIn .2s ease';
+    d.innerHTML = `
+      <div class="av">AI</div>
+      <div class="bubble">
+        ${renderMD(reply)}
+        <div class="btoolbar">
+          <button class="btbtn" onclick="copyBubble(this)">📋 Copier</button>
+          <button class="btbtn" onclick="quick('Approfondir ce point : ')">🔍 +</button>
+          <button class="btbtn" onclick="quick('Condense en 5 points.')">✂️ Condenser</button>
+        </div>
+      </div>`;
+    document.getElementById('messages').appendChild(d);
+    scroll();
+
+  } catch (err) {
+    removeTyping();
+    addMsg('ai', `❌ Erreur : ${err.message}`);
+  }
+
+  busy = false;
+  document.getElementById('send-btn').disabled = false;
+}
+
+// ─────────────────────────────────────────────
+// PWA / SERVICE WORKER
+// ─────────────────────────────────────────────
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js').catch(() => {});
+}
+
+// iOS install hint
+function isIOS() {
+  return /iphone|ipad|ipod/i.test(navigator.userAgent) && !window.MSStream;
+}
+
+function isStandalone() {
+  return window.matchMedia('(display-mode: standalone)').matches || navigator.standalone;
+}
+
+if (isIOS() && !isStandalone()) {
+  setTimeout(() => {
+    document.getElementById('install-banner').classList.add('show');
+  }, 3000);
+}
+
+// Android / Chrome install prompt
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredPrompt = e;
+  // Show a custom install button
+  const banner = document.getElementById('install-banner');
+  banner.innerHTML = `
+    <div class="ib-text"><strong>📲 Installer Lenaxis</strong>Accédez depuis votre écran d'accueil</div>
+    <button class="ib-btn" onclick="installApp()">Installer</button>
+    <button class="ib-close" onclick="this.parentElement.classList.remove('show')">✕</button>`;
+  banner.classList.add('show');
+});
+
+async function installApp() {
+  if (!deferredPrompt) return;
+  deferredPrompt.prompt();
+  const { outcome } = await deferredPrompt.userChoice;
+  deferredPrompt = null;
+  document.getElementById('install-banner').classList.remove('show');
+}
+
+// URL mode param
+const urlMode = new URLSearchParams(location.search).get('mode');
+if (urlMode && document.querySelector(`.mode-tab[onclick*="${urlMode}"]`)) {
+  document.querySelector(`.mode-tab[onclick*="${urlMode}"]`).click();
+}
+</script>
+</body>
+</html>
